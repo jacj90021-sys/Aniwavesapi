@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.log
+
+# debug/test scripts (BYFMS PoW reverse-engineering probes)
+*.mjs
+!/build.mjs
