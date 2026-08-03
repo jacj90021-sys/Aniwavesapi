@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Aniwaves API — Endpoint Tester</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#d0d0d0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:20px 16px;max-width:800px;margin:0 auto}
+header{margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #1a1a2e}
+h1{font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
+h1 span{color:#6366f1}
+.subtitle{color:#666;font-size:13px}
+.base-url{background:#111122;border:1px solid #1e1e3a;border-radius:6px;padding:8px 12px;font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace;font-size:12px;border-left:3px solid #6366f1;color:#a0a0a0;margin-top:8px}
+
+/* Endpoint Cards */
+.ep{background:#0d0d14;border:1px solid #1a1a2e;border-radius:10px;margin-bottom:14px;overflow:hidden}
+.ep-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#0f0f1a;border-bottom:1px solid #1a1a2e}
+.method{font-family:'SF Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+.method.get{background:#6366f1;color:#fff}
+.path{font-family:'SF Mono',monospace;font-size:13px;color:#c0c0c0;flex:1}
+.ep-body{padding:16px}
+.params{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.params .full{grid-column:1/-1}
+@media(max-width:500px){.params{grid-template-columns:1fr}}
+label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#666;margin-bottom:4px;display:block}
+input,select{background:#0a0a0f;border:1px solid #222;border-radius:6px;padding:8px 10px;color:#d0d0d0;font-size:13px;width:100%;transition:border .15s}
+input:focus,select:focus{border-color:#6366f1;outline:none}
+select{appearance:auto;cursor:pointer}
+.try-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{background:#6366f1;color:#fff;border:none;padding:9px 20px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn.dark{background:#1e1e3a;color:#a0a0a0;font-size:12px}
+.btn.dark:hover{background:#2a2a4a;color:#c0c0c0}
+
+/* Response */
+.response{margin-top:14px;background:#08080e;border:1px solid #1a1a2e;border-radius:6px;overflow:hidden}
+.response-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#0f0f1a;border-bottom:1px solid #1a1a2e;font-size:12px;color:#888;font-family:'SF Mono',monospace}
+.response-body{padding:12px;font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;color:#a0e0a0}
+.response-body.err{color:#e06060}
+.resp-url{color:#6366f1;font-size:11px;margin-top:8px;text-decoration:none;display:block;word-break:break-all;font-family:'SF Mono',monospace}
+.resp-url:hover{text-decoration:underline}
+
+/* Player */
+.player-card{background:#0d0d14;border:1px solid #1a1a2e;border-radius:10px;margin-bottom:40px;overflow:hidden}
+.player-head{padding:14px 16px;background:#0f0f1a;border-bottom:1px solid #1a1a2e;font-size:15px;font-weight:600;color:#fff}
+.player-body{padding:16px}
+#playerWrap{position:relative;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:16/9;margin-top:14px}
+#pOverlay{position:absolute;inset:0;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:8px;text-align:center}
+#pOverlay.hidden{display:none}
+#pOverlay .big{font-size:42px}
+#pOverlay .txt{font-size:15px;color:#fff}
+#pOverlay .sub{font-size:13px;color:#666}
+.pErr{color:#ef4444;font-size:13px}
+#vv{width:100%;height:100%;display:none;background:#000}
+#pBar{display:none;justify-content:space-between;align-items:center;padding:8px 12px;background:#0f0f1a;border-radius:6px;margin-top:8px;font-size:13px}
+.pTag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700}
+.pTag.vp{background:#6366f1;color:#fff}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎬 <span>Aniwaves</span> API</h1>
+  <p class="subtitle">Interactive endpoint tester — click each endpoint to test</p>
+  <div class="base-url">https://aniwavesapi-w5ex.onrender.com</div>
+</header>
+
+<!-- SEARCH -->
+<div class="ep">
+  <div class="ep-header">
+    <span class="method get">GET</span>
+    <span class="path">/api/search</span>
+  </div>
+  <div class="ep-body">
+    <div class="params">
+      <div class="full">
+        <label>Query (q)</label>
+        <input id="s_q" value="naruto" placeholder="Search query...">
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doSearch()">Try It</button>
+      <a class="resp-url" id="s_url" target="_blank" href="#"></a>
+    </div>
+    <div class="s_url_wrap" style="display:none">
+      <a class="resp-url" id="s_url2" target="_blank" href="#"></a>
+    </div>
+    <div id="s_resp_box" style="display:none" class="response">
+      <div class="response-head"><span>Response</span><span id="s_status"></span></div>
+      <div class="response-body" id="s_resp"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAILS -->
+<div class="ep">
+  <div class="ep-header">
+    <span class="method get">GET</span>
+    <span class="path">/api/details</span>
+  </div>
+  <div class="ep-body">
+    <div class="params">
+      <div class="full">
+        <label>Anime ID (id)</label>
+        <input id="d_id" value="naruto-76396" placeholder="anime-id">
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doDetails()">Try It</button>
+    </div>
+    <a class="resp-url" id="d_url" target="_blank" href="#"></a>
+    <div id="d_resp_box" style="display:none" class="response">
+      <div class="response-head"><span>Response</span><span id="d_status"></span></div>
+      <div class="response-body" id="d_resp"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EPISODES -->
+<div class="ep">
+  <div class="ep-header">
+    <span class="method get">GET</span>
+    <span class="path">/api/episodes</span>
+  </div>
+  <div class="ep-body">
+    <div class="params">
+      <div class="full">
+        <label>Anime ID (id)</label>
+        <input id="e_id" value="naruto-76396" placeholder="anime-id">
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doEpisodes()">Try It</button>
+    </div>
+    <a class="resp-url" id="e_url" target="_blank" href="#"></a>
+    <div id="e_resp_box" style="display:none" class="response">
+      <div class="response-head"><span>Response</span><span id="e_status"></span></div>
+      <div class="response-body" id="e_resp"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVERS -->
+<div class="ep">
+  <div class="ep-header">
+    <span class="method get">GET</span>
+    <span class="path">/api/servers</span>
+  </div>
+  <div class="ep-body">
+    <div class="params">
+      <div>
+        <label>Anime ID (id)</label>
+        <input id="sr_id" value="naruto-76396" placeholder="anime-id">
+      </div>
+      <div>
+        <label>Episode (ep)</label>
+        <input id="sr_ep" type="number" value="1">
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="sr_type"><option value="sub">sub</option><option value="dub">dub</option></select>
+      </div>
+      <div></div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doServers()">Try It</button>
+    </div>
+    <a class="resp-url" id="sr_url" target="_blank" href="#"></a>
+    <div id="sr_resp_box" style="display:none" class="response">
+      <div class="response-head"><span>Response</span><span id="sr_status"></span></div>
+      <div class="response-body" id="sr_resp"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STREAM -->
+<div class="ep">
+  <div class="ep-header">
+    <span class="method get">GET</span>
+    <span class="path">/api/stream</span>
+  </div>
+  <div class="ep-body">
+    <div class="params">
+      <div class="full">
+        <label>serverId (from /api/servers)</label>
+        <input id="st_sid" placeholder="Paste server ID here">
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doStream()">Try It</button>
+    </div>
+    <a class="resp-url" id="st_url" target="_blank" href="#"></a>
+    <div id="st_resp_box" style="display:none" class="response">
+      <div class="response-head"><span>Response</span><span id="st_status"></span></div>
+      <div class="response-body" id="st_resp"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO PLAYER -->
+<div class="player-card">
+  <div class="player-head">🎬 Video Player</div>
+  <div class="player-body">
+    <div class="params">
+      <div>
+        <label>Anime ID</label>
+        <input id="p_id" value="naruto-76396" placeholder="anime-id">
+      </div>
+      <div>
+        <label>Episode</label>
+        <input id="p_ep" type="number" value="1">
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="p_type"><option value="sub">sub</option><option value="dub">dub</option></select>
+      </div>
+      <div>
+        <label>Server</label>
+        <select id="p_server"><option value="">Select server</option></select>
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="btn" onclick="doPlay()">▶ Play</button>
+      <button class="btn dark" onclick="doStop()">■ Stop</button>
+    </div>
+    <div id="playerWrap">
+      <div id="pOverlay" onclick="if(window.__vvTryPlay)window.__vvTryPlay()">
+        <div class="big" id="pIc">▶️</div>
+        <div class="txt" id="pMsg">Select server and click Play</div>
+        <div class="sub" id="pSub">Pick a server and click Play</div>
+        <div class="pErr" id="pErr"></div>
+      </div>
+      <video id="vv" controls playsinline muted></video>
+    </div>
+    <div id="pBar">
+      <span id="pInfo"></span>
+      <span id="pTag"></span>
+    </div>
+  </div>
+</div>
+
+<script src="/hls.min.js"></script>
+<script>
+var BASE='https://aniwavesapi-w5ex.onrender.com';
+var hls=null;
+
+function $(id){return document.getElementById(id)}
+
+function showResp(prefix, url, data, isErr){
+  var urlEl = document.getElementById(prefix+'_url');
+  var boxEl = document.getElementById(prefix+'_resp_box');
+  var respEl = document.getElementById(prefix+'_resp');
+  if(!boxEl){
+    console.error('showResp: no element with id', prefix+'_resp_box');
+    alert('Error: response container not found for '+prefix);
+    return;
+  }
+  if(urlEl){
+    urlEl.textContent = url;
+    urlEl.href = url;
+  }
+  boxEl.style.display = 'block';
+  respEl.textContent = typeof data==='string' ? data : JSON.stringify(data,null,2);
+  respEl.className = 'response-body' + (isErr ? ' err' : '');
+  console.log('showResp', prefix, 'done, url:', url.substring(0,80));
+}
+
+function fetchEp(path, params, prefix){
+  var qs = new URLSearchParams();
+  Object.keys(params).forEach(function(k){
+    if(params[k]!=='' && params[k]!==null && params[k]!==undefined) qs.set(k, params[k]);
+  });
+  var url = BASE + path + '?' + qs;
+  var t0 = Date.now();
+  console.log('fetchEp', prefix, 'fetching', url);
+  fetch(url)
+    .then(function(r){
+      console.log('fetchEp', prefix, 'response status', r.status);
+      return r.text().then(function(t){
+        var d;
+        try { d = JSON.parse(t); } catch(e) { d = t; }
+        showResp(prefix, url+' ('+(Date.now()-t0)+'ms)', d, !!d.error);
+      });
+    })
+    .catch(function(e){
+      console.error('fetchEp', prefix, 'error:', e.message);
+      showResp(prefix, url, 'Error: '+e.message, true);
+    });
+}
+
+function doSearch(){fetchEp('/api/search',{q:$('s_q').value.trim()},'s')}
+function doDetails(){fetchEp('/api/details',{id:$('d_id').value.trim()},'d')}
+function doEpisodes(){fetchEp('/api/episodes',{id:$('e_id').value.trim()},'e')}
+function doServers(){
+  var id=$('sr_id').value.trim(),ep=$('sr_ep').value,type=$('sr_type').value;
+  if(id&&ep){fetchEp('/api/servers',{episodeId:id+'-ep-'+ep,type:type},'sr')}
+  else{fetchEp('/api/servers',{id:id,ep:ep,type:type},'sr')}
+}
+function doStream(){
+  var sid=$('st_sid').value.trim();
+  if(sid){fetchEp('/api/stream',{serverId:sid},'st');return}
+  showResp('st','','Provide a serverId',true);
+}
+
+/* Player */
+function setOverlay(icon,msg,sub,err){
+  $('pIc').textContent=icon;
+  $('pMsg').textContent=msg;
+  $('pSub').textContent=sub||'';
+  $('pErr').textContent=err||'';
+  $('vv').style.display='none';
+  $('pBar').style.display='none';
+  $('pOverlay').classList.remove('hidden');
+}
+function showVideo(server){
+  $('pOverlay').classList.add('hidden');
+  $('vv').style.display='block';
+  $('pBar').style.display='flex';
+  $('pInfo').textContent=$('p_id').value+' — Ep '+$('p_ep').value;
+  $('pTag').innerHTML='<span class="pTag vp">'+server+'</span>';
+  // First user tap on the video unmutes + resumes (after muted autoplay).
+  var v=$('vv');
+  v.onclick=function(){
+    if(v.muted){v.muted=false;v.play().catch(function(){});}
+    else if(v.paused){v.play().catch(function(){});}
+  };
+}
+
+/**
+ * Resolve a playable HLS URL.
+ * Prefer API-provided proxiedM3u8 (points at Cloudflare Worker when configured).
+ * Absolute Worker / already-proxied URLs are used as-is.
+ * Raw CDN m3u8 falls back to Render /api/proxy (costs bandwidth — avoid in prod).
+ */
+function resolvePlayUrl(url){
+  if(!url) return '';
+  // Already a full media-proxy or CF worker URL from the API
+  if(/^https?:\/\//i.test(url) && (url.indexOf('workers.dev')!==-1 || url.indexOf('/api/proxy')!==-1 || url.indexOf('url=')!==-1)){
+    return url;
+  }
+  // Relative /api/proxy from same API host
+  if(url.indexOf('/api/proxy')===0){
+    return BASE + url;
+  }
+  // Absolute path on API
+  if(url.charAt(0)==='/'){
+    return BASE + url;
+  }
+  // Raw CDN — emergency Render proxy (burns bandwidth)
+  console.warn('resolvePlayUrl: raw CDN URL, falling back to Render /api/proxy');
+  return BASE+'/api/proxy?url='+encodeURIComponent(url)+'&referer='+encodeURIComponent('https://play.echovideo.ru/');
+}
+
+function playHLS(url){
+  var v=$('vv');
+  if(hls){hls.destroy();hls=null}
+  v.muted = true;            // muted lets the browser autoplay without a gesture
+  v.defaultMuted = true;
+  v.autoplay = true;
+  v.playsInline = true;
+
+  function hint(msg){ $('pSub').textContent = msg; }
+  function playStarted(){ $('pOverlay').classList.add('hidden'); $('vv').style.display='block'; $('pErr').textContent=''; }
+
+  function tryPlay(){
+    var p = v.play();
+    if(p && p.catch){
+      p.then(function(){ playStarted(); if(v.muted) hint('🔊 Tap video to enable sound'); })
+       .catch(function(e){
+          console.log('play() rejected:', e.name, e.message);
+          playStarted();
+          hint('▶️ Tap the video’s play button to start');
+        });
+    }
+  }
+  window.__vvTryPlay = tryPlay;
+
+  v.addEventListener('playing', function(){ playStarted(); });
+  v.addEventListener('error', function(){ if(v.error) $('pErr').textContent='Media error: '+v.error.code+' '+v.error.message; });
+  v.addEventListener('stalled', function(){ hint('Buffering…'); });
+  v.addEventListener('canplay', function(){ if(v.paused) tryPlay(); }, { once:true });
+  v.addEventListener('click', function(){
+    if(v.paused) v.play().catch(function(){});
+    else if(v.muted){ v.muted=false; }
+  });
+
+  var playUrl = resolvePlayUrl(url);
+  console.log('playHLS URL:', playUrl.slice(0,140));
+
+  if(window.Hls&&Hls.isSupported()){
+    hls=new Hls({enableWorker:true, lowLatencyMode:false});
+    hls.loadSource(playUrl);
+    hls.attachMedia(v);
+    hls.on(Hls.Events.MANIFEST_PARSED,function(){
+      console.log('HLS manifest parsed, playing...');
+      tryPlay();
+    });
+    hls.on(Hls.Events.ERROR,function(e,d){
+      console.error('HLS error:', d.type, d.details, 'fatal:', d.fatal);
+      if(d.fatal){
+        if(d.type===Hls.ErrorTypes.NETWORK_ERROR){hls.startLoad();return;}
+        if(d.type===Hls.ErrorTypes.MEDIA_ERROR){hls.recoverMediaError();return;}
+        setOverlay('❌','Playback error: '+d.details, '', 'hls.js fatal: '+d.details);
+      }
+    });
+  }else if(v.canPlayType('application/vnd.apple.mpegurl')){
+    v.src=playUrl;
+    v.addEventListener('loadedmetadata', function(){ tryPlay(); }, { once:true });
+  }else{
+    setOverlay('❌','HLS not supported');
+  }
+}
+
+function loadServers(){
+  var id=$('p_id').value.trim(),ep=$('p_ep').value,type=$('p_type').value;
+  if(!id)return;
+  var epId=id+'-ep-'+ep;
+  setOverlay('⏳','Loading...','Fetching servers');
+  fetch(BASE+'/api/servers?episodeId='+encodeURIComponent(epId)+'&type='+type)
+    .then(function(r){return r.json()})
+    .then(function(sd){
+      if(!sd.servers||!sd.servers.length){setOverlay('❌','No servers found');return}
+      var sel=$('p_server');
+      sel.innerHTML='';
+      sd.servers.forEach(function(s){
+        var o=document.createElement('option');
+        o.value=s.name; o.textContent=s.name;
+        sel.appendChild(o);
+      });
+      sel.selectedIndex=0;
+      setOverlay('▶️','Select a server and click Play');
+    })
+    .catch(function(e){setOverlay('❌','Failed: '+e.message)});
+}
+
+function doPlay(){
+  var id=$('p_id').value.trim(),ep=$('p_ep').value,type=$('p_type').value;
+  var srv=$('p_server').value;
+  if(!id){setOverlay('❌','Enter an anime ID');return}
+  // Apply muted state on the live user gesture so the browser is allowed
+  // to autoplay once the source attaches.
+  var v=$('vv'); v.muted=true; v.playsInline=true;
+  var epId=id+'-ep-'+ep;
+
+  // If no server selected, load servers then auto-play first one
+  if(!srv){
+    setOverlay('⏳','Loading...','Fetching servers');
+    fetch(BASE+'/api/servers?episodeId='+encodeURIComponent(epId)+'&type='+type)
+      .then(function(r){return r.json()})
+      .then(function(sd){
+        if(!sd.servers||!sd.servers.length){setOverlay('❌','No servers found');return}
+        var sel=$('p_server');
+        sel.innerHTML='';
+        sd.servers.forEach(function(s){
+          var o=document.createElement('option');
+          o.value=s.name; o.textContent=s.name;
+          sel.appendChild(o);
+        });
+        if(sel.options.length===0){setOverlay('❌','No servers found');return}
+        sel.selectedIndex=0;
+        // Auto-play first server
+        doPlay();
+      })
+      .catch(function(e){setOverlay('❌','Failed: '+e.message)});
+    return;
+  }
+
+  // Server selected, stream it
+  setOverlay('⏳','Loading...','Fetching stream from '+srv);
+  fetch(BASE+'/api/servers?episodeId='+encodeURIComponent(epId)+'&type='+type)
+    .then(function(r){return r.json()})
+    .then(function(sd){
+      if(!sd.servers||!sd.servers.length){setOverlay('❌','No servers found');return}
+      var match=sd.servers.filter(function(s){return s.name.toLowerCase()===srv.toLowerCase()});
+      if(!match.length){setOverlay('❌','Server "'+srv+'" not found');return}
+      tryNextServer(match,0,epId,type);
+    })
+    .catch(function(e){setOverlay('❌','Server lookup failed: '+e.message)});
+}
+
+function tryNextServer(servers,idx,epId,type){
+  if(idx>=servers.length){setOverlay('❌','All servers failed');return}
+  var srv=servers[idx];
+  console.log('tryNextServer['+idx+']:', srv.name, srv.id.substring(0,40)+'...');
+  setOverlay('⏳','Trying '+srv.name+'...','Server '+(idx+1)+' of '+servers.length);
+  fetch(BASE+'/api/stream?serverId='+encodeURIComponent(srv.id))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      console.log('stream response for', srv.name, ':', d);
+      if(d.m3u8 || d.proxiedM3u8){
+        showVideo(srv.name);
+        // proxiedM3u8 is absolute CF Worker URL when CF_MEDIA_PROXY_URL is set
+        // on the API — video bytes never touch Render.
+        var src = (d.proxiedM3u8 && d.proxiedM3u8.length) ? d.proxiedM3u8 : d.m3u8;
+        console.log('mediaProxy:', d.mediaProxy || 'unknown', 'src:', (src||'').slice(0,100));
+        playHLS(src);
+      }
+      else if(d.error){tryNextServer(servers,idx+1,epId,type)}
+      else{tryNextServer(servers,idx+1,epId,type);}
+    })
+    .catch(function(e){console.error('stream fetch error:', e); tryNextServer(servers,idx+1,epId,type)});
+}
+</script>
+</body>
+</html>
