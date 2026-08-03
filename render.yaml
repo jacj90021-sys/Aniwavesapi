@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: aniwavesapis
+    runtime: node
+    buildCommand: pip3 install curl_cffi beautifulsoup4 && npm install && npm run build
+    startCommand: node dist/index.mjs
+    envVars:
+      - key: ANIWAVES_SCRAPER_PATH
+        value: /opt/render/project/src/aniwaves_scraper.py
+      - key: ANIWAVES_PROXY_URL
+        value: ""
+      # Set these in the Render dashboard (do not commit secrets):
+      # CF_MEDIA_PROXY_URL=https://<your-media-worker>.workers.dev
+      # CF_MEDIA_PROXY_SECRET=<same as Worker PROXY_SECRET>
+      # UPSTASH_REDIS_REST_URL=https://….upstash.io
+      # UPSTASH_REDIS_REST_TOKEN=…
+      - key: CF_MEDIA_PROXY_URL
+        sync: false
+      - key: CF_MEDIA_PROXY_SECRET
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
