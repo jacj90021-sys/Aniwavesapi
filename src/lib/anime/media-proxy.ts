@@ -81,20 +81,19 @@ export function refererForUrl(targetUrl: string, fallback = "https://play.echovi
  *                         returns a relative path for same-origin clients.
  */
 /**
- * Some CDN hosts (BYFMS / owphbf / sprintcdn family) block Cloudflare Worker
- * egress IPs (return 404/403). For those we must route through Render's
- * /api/proxy (which has an allowed egress IP) instead of the Worker.
+ * Hosts that genuinely block Cloudflare Worker egress IPs (return 404/403).
+ * For those we still route through Render's /api/proxy (allowed egress IP).
+ *
+ * NOTE: the BYFMS aliases (myvidplay / gn1r5n / dood / byfms / wnbf / playmogo /
+ * weneverbeenfree) were previously assumed to block CF too, but in practice the
+ * real segment CDN (cloudatacdn.com) serves the Worker fine — only owphbf /
+ * sprintcdn actually 403 CF egress. Keeping BYFMS on the Worker (not Render)
+ * moves all video egress off Render = $0 bandwidth cost. If a specific BYFMS
+ * host starts 403ing the Worker, add it back here.
  */
 const WORKER_BLOCKED_HOSTS = [
   "owphbf",
   "sprintcdn",
-  "weneverbeenfree",
-  "myvidplay",
-  "wnbf",
-  "playmogo",
-  "gn1r5n",
-  "dood",
-  "byfms",
 ];
 
 export function isWorkerBlockedHost(targetUrl: string): boolean {

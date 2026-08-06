@@ -13,6 +13,7 @@ const ALLOWED_HOST_SUFFIXES = [
   "vidplay.lol", "vidcloud.lol", "mcloud.bz", "megacloud.tv",
   "rapid-cloud.co", "rabbitstream.net", "aniwaves.ru",
   "cloudfront.net", "bunnycdn.ru", "b-cdn.net", "cdn.jsdelivr.net",
+  "cloudatacdn.com", "doodcdn.io", "doimg.net",
 ];
 
 const UA =
